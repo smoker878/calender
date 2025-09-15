@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}登入{% endblock %}
+
+{% block content %}
+<h2>登入</h2>
+
+<form method="POST">
+    <label>Email:</label>
+    <input type="email" name="email" value="{{ email|default('') }}" required><br>
+
+    <label>密碼:</label>
+    <input type="password" name="password" required><br>
+
+    <label>
+        <input type="checkbox" name="remember" {% if remember %}checked{% endif %}> 記住我
+    </label><br>
+
+    <button type="submit">登入</button>
+</form>
+
+<p>還沒有帳號？ <a href="{{ url_for('auth.register') }}">註冊</a></p>
+
+{% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ category }}">{{ message }}</div>
+{% endfor %}
+{% endblock %}

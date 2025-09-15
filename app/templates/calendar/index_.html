@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>行事曆</title>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+    <h1>📅 我的行事曆</h1>
+    <div id="calendar"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const calendarEl = document.getElementById("calendar");
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth",
+                selectable: true,
+                events: "/calendar/events",
+
+                // 點選日期 -> 新增事件
+                select: function (info) {
+                    const title = prompt("事件標題：");
+                    if (title) {
+                        axios.post("/calendar/events", {
+                            title: title,
+                            start: info.startStr,
+                            end: info.endStr || info.startStr
+                        }).then(res => {
+                            calendar.refetchEvents();
+                        }).catch(err => {
+                            alert("新增失敗");
+                        });
+                    }
+                },
+
+                eventClick: function(info) {
+                    alert("事件：" + info.event.title);
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+</body>
+</html>
