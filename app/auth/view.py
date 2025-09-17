@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from . import auth_bp
 from app.models import User
 from app import db
+from flask import jsonify
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -27,7 +28,7 @@ def login():
             login_user(user, remember=remember)
             flash("登入成功！", "success")
             next_page = request.args.get("next")
-            return redirect(next_page or url_for("main.index"))
+            return redirect(next_page or url_for("calendar.index"))
         else:
             flash("帳號或密碼錯誤", "danger")
             return render_template("auth/login.html", email=email, remember=remember)
@@ -75,6 +76,17 @@ def register():
 def logout():
     logout_user()  # 清掉 session 中的登入資訊
     return redirect(url_for("calendar.index"))
+
+@auth_bp.route("/me")
+def me():
+    if current_user.is_authenticated:
+        return jsonify({
+            "authenticated": True,
+            "id": current_user.id,
+            "username": current_user.username
+        })
+    else:
+        return jsonify({"authenticated": False}), 401
 
 
 

@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/reset.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fullcalendar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sweetalert.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
     <nav>
-        {% if current_user.is_authenticated %}
-            <span>{{ current_user.username }}</span>
-            <a href="{{ url_for('auth.logout') }}">登出</a>
-        {% else %}
-            <a href="{{ url_for('auth.login') }}">登入</a>
-            <a href="{{ url_for('auth.register') }}">註冊</a>
-        {% endif %}
+        <h1>{% block nav_title %}{% endblock %}</h1>
+        <div class="auth">
+            {% if current_user.is_authenticated %}
+                <span>{{ current_user.username }}</span>
+                <a href="{{ url_for('auth.logout') }}">🚪登出</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">🗝️登入</a>
+                <a href="{{ url_for('auth.register') }}">📝註冊</a>
+            {% endif %}
+        </div>
     </nav>
 
     <div>

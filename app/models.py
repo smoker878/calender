@@ -36,7 +36,7 @@ class Event(db.Model):
     __tablename__ = "events"
 
     id = db.Column(db.Integer, primary_key=True)
-    create_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey("groups.id"), nullable=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     title = db.Column(db.String(128), nullable=False)
@@ -46,6 +46,12 @@ class Event(db.Model):
     
     user = db.relationship("User", back_populates="events")
     group = db.relationship("Group", back_populates="events")
+
+    @db.validates("end")
+    def validate_end(self, key, end):
+        if end and self.start and end < self.start:
+            raise ValueError("結束日期不能小於開始日期")
+        return end
 
     def __repr__(self):
         return f"<Event {self.title} ({self.start} - {self.end})>"

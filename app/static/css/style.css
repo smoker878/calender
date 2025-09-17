@@ -1,1 +1,64 @@
-/*# sourceMappingURL=style.css.map */
+nav {
+  width: 100%;
+  display: flex;
+  background-color: rgb(78, 78, 190);
+  height: 80px;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 30px;
+}
+nav h1 {
+  font-size: 40px;
+  color: white;
+}
+@media (max-width: 650px) {
+  nav h1 {
+    font-size: 30px;
+  }
+}
+nav .auth {
+  display: flex;
+  gap: 30px;
+  padding-left: 50px;
+}
+nav .auth * {
+  color: white;
+  font-size: 30px;
+}
+@media (max-width: 650px) {
+  nav .auth * {
+    font-size: 20px;
+  }
+}
+nav a {
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 5px;
+}
+nav a:hover {
+  background-color: cadetblue;
+}
+.main {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.main .wrapper {
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 15px;
+}
+
+.fc-toolbar-chunk {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 750px) {
+  .fc-toolbar-ltr {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: flex-end;
+  }
+}/*# sourceMappingURL=style.css.map */

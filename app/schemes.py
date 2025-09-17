@@ -1,5 +1,5 @@
 from app import ma
-from marshmallow import fields
+from marshmallow import fields, validates_schema, ValidationError
 from .models import User, Event, Group
 
 class EventSchema(ma.SQLAlchemyAutoSchema):
@@ -7,6 +7,12 @@ class EventSchema(ma.SQLAlchemyAutoSchema):
         model = Event
         include_fk = True
         load_instance = True
+    @validates_schema
+    def validate_dates(self, data, **kwargs):
+        start = data.get("start")
+        end = data.get("end")
+        if end and start and end < start:
+            raise ValidationError("結束日期不能小於開始日期", field_name="end")
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
