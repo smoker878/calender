@@ -40,18 +40,13 @@ class Event(db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey("groups.id"), nullable=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     title = db.Column(db.String(128), nullable=False)
-    content = db.Column(db.Text, nullable=True)
+    content = db.Column(db.String(350), nullable=True)
     start = db.Column(db.Date, nullable=False)
     end = db.Column(db.Date, nullable=True)
     
     user = db.relationship("User", back_populates="events")
     group = db.relationship("Group", back_populates="events")
 
-    @db.validates("end")
-    def validate_end(self, key, end):
-        if end and self.start and end < self.start:
-            raise ValueError("結束日期不能小於開始日期")
-        return end
 
     def __repr__(self):
         return f"<Event {self.title} ({self.start} - {self.end})>"

@@ -4,12 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         selectable: true,
-        events: '/calendar/events',
+        events: '/events',
         customButtons: {
             newEventButton: {
                 text: '新增事件!',
                 click: function () {
-                    alert('clicked the custom button!')
+                    needLogin(createEvent);
                 }
             }
         },
@@ -19,14 +19,21 @@ document.addEventListener('DOMContentLoaded', function () {
             right: 'multiMonthYear,dayGridMonth'
         },
 
-        // 點選日期 -> 新增事件
-        select: function (info) {
+        
+        dateClick: function (info) {
+            console.log(info)
+            needLogin(createEvent, info);
+        },
 
+        select: function (info) {
+            needLogin(createEvent, info);
         },
 
         eventClick: function (info) {
-            alert('事件：' + info.event.title)
+            const event = info.event;
+            eventDetail(event.id);  // 點事件直接呼叫 eventDetail
         }
+
     })
 
     calendar.render()
@@ -35,21 +42,156 @@ document.addEventListener('DOMContentLoaded', function () {
 function needLogin(callback, arg) {
     $.ajax({
         url: "/auth/me",
-        success: function(result) {
+        success: function (result) {
+            // console.log(result)
+            // console.log(arg)
             callback(result, arg);
         },
-        error: function(xhr) {
+        error: function (xhr) {
             if (xhr.status === 401) {
                 Swal.fire({
                     icon: "error",
                     title: "請登入",
                     footer: '<a href="/auth/login">🗝️登入</a>'
-                });
+                })
             }
+        }
+    })
+}
+
+// 給後端傳來錯誤訊息時調用
+function showError(err) {
+    Swal.fire({
+        icon: "error",
+        title: "發生錯誤",
+        text: err || "操作失敗，請稍後再試",
+    });
+}
+
+function eventDetail(event_id) {
+    $.get(`/events/${event_id}`, function (event) {
+        Swal.fire({
+            title: event.title,
+            html: `
+                <p>內容: ${event.content || ""}</p>
+                <p>開始: ${event.start}</p>
+                <p>結束: ${event.end || "無"}</p>
+                <p>公開: ${event.is_public ? "是" : "否"}</p>
+                <p>群組: ${event.group_id || "無"}</p>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "修改",
+            cancelButtonText: "刪除"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                needLogin(editEvent, event.id);
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                needLogin(deleteEvent, event.id);
+            }
+        });
+    }).fail(function (xhr) {
+        showError(xhr.responseJSON?.error || "取得事件資料失敗");
+    });
+}
+
+function createEvent(auth={},info={}) {
+    Swal.fire({
+        title: "新增事件",
+        html: `
+            <label> title</label><input id="title" class="swal2-input" placeholder="標題"><br>
+            <label> content</label><textarea id="content" class="swal2-textarea" placeholder="內容"></textarea><br>
+            <label> start</label><input id="start" type="date" class="swal2-input" value="${info.startStr||info.dateStr}"><br>
+            <label> end</label><input id="end" type="date" class="swal2-input" value="${info.endStr||""}"><br>
+            <label> 公開事件</label><input type="checkbox" id="is_public">
+        `,
+        showCancelButton: true,
+        confirmButtonText: "送出"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "/events",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    title: $("#title").val(),
+                    content: $("#content").val(),
+                    start: $("#start").val(),
+                    end: $("#end").val(),
+                    is_public: $("#is_public").is(":checked")
+                }),
+                success: function () {
+                    Swal.fire("成功", "事件已新增", "success");
+                    calendar.refetchEvents();
+                },
+                error: function (xhr) {
+                    showError(xhr.responseJSON.error || "新增失敗");
+                }
+            });
         }
     });
 }
 
+function editEvent(event_id) {
+    $.get(`/events/${event_id}`, function (event) {
+        Swal.fire({
+            title: "編輯事件",
+            html: `
+                <input id="title" class="swal2-input" value="${event.title}">
+                <textarea id="content" class="swal2-textarea">${event.content || ""}</textarea>
+                <input id="start" type="date" class="swal2-input" value="${event.start}">
+                <input id="end" type="date" class="swal2-input" value="${event.end || ""}">
+                <label><input type="checkbox" id="is_public" ${event.is_public ? "checked" : ""}> 公開事件</label>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "更新"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/events/${event_id}`,
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        title: $("#title").val(),
+                        content: $("#content").val(),
+                        start: $("#start").val(),
+                        end: $("#end").val(),
+                        is_public: $("#is_public").is(":checked")
+                    }),
+                    success: function () {
+                        Swal.fire("成功", "事件已更新", "success");
+                        calendar.refetchEvents();
+                    },
+                    error: function (xhr) {
+                        showError(xhr.responseJSON.error || "更新失敗");
+                    }
+                });
+            }
+        });
+    });
+}
+
+function deleteEvent(event_id) {
+    Swal.fire({
+        title: "確定要刪除嗎？",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "刪除"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/events/${event_id}`,
+                method: "DELETE",
+                success: function () {
+                    Swal.fire("刪除成功", "", "success");
+                    calendar.refetchEvents();
+                },
+                error: function (xhr) {
+                    showError(xhr.responseJSON.error || "刪除失敗");
+                }
+            });
+        }
+    });
+}
 
 
 

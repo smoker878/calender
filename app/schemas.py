@@ -7,6 +7,8 @@ class EventSchema(ma.SQLAlchemyAutoSchema):
         model = Event
         include_fk = True
         load_instance = True
+    user_id = fields.Int(dump_only=True)
+    end = fields.Date(allow_none=True) 
     @validates_schema
     def validate_dates(self, data, **kwargs):
         start = data.get("start")

@@ -57,8 +57,9 @@ nav a:hover {
 @media (max-width: 750px) {
   .fc-toolbar-ltr {
     display: flex;
-    flex-direction: column-reverse;
     justify-content: center;
-    align-items: flex-end;
+    align-items: end;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 }/*# sourceMappingURL=style.css.map */
