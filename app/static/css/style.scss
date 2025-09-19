@@ -64,7 +64,7 @@ nav {
 .fc-toolbar-ltr {
     @media (max-width: 750px) {
         display: flex;
-        // flex-direction: column;
+        flex-direction: row-reverse;
         justify-content: center;
         align-items: end;
         gap: 10px;

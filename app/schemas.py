@@ -2,12 +2,14 @@ from app import ma
 from marshmallow import fields, validates_schema, ValidationError
 from .models import User, Event, Group
 
+
 class EventSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Event
         include_fk = True
         load_instance = True
     user_id = fields.Int(dump_only=True)
+    username = fields.Function(lambda obj: obj.user.username if obj.user else None)
     end = fields.Date(allow_none=True) 
     @validates_schema
     def validate_dates(self, data, **kwargs):

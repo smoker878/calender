@@ -4,7 +4,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         selectable: true,
-        events: '/events',
+        // events: '/events',
+        eventSources: [
+            {
+                url: '/events',
+                method: 'GET',
+                extraParams: function () {
+                    return { t: new Date().getTime() }; // 避免快取
+                },
+                failure: function () {
+                    Swal.fire("錯誤", "事件載入失敗", "error");
+                }
+            }
+        ],
         customButtons: {
             newEventButton: {
                 text: '新增事件!',
@@ -19,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
             right: 'multiMonthYear,dayGridMonth'
         },
 
-        
+
         dateClick: function (info) {
             console.log(info)
             needLogin(createEvent, info);
@@ -37,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     calendar.render()
+    window.calendar = calendar;
 })
 
 function needLogin(callback, arg) {
@@ -78,11 +91,14 @@ function eventDetail(event_id) {
                 <p>結束: ${event.end || "無"}</p>
                 <p>公開: ${event.is_public ? "是" : "否"}</p>
                 <p>群組: ${event.group_id || "無"}</p>
+                <p>創建: ${event.username || "無"}</p>
             `,
             showCancelButton: true,
             confirmButtonText: "修改",
             cancelButtonText: "刪除"
         }).then((result) => {
+            // console.log(result)
+            // console.log(event)
             if (result.isConfirmed) {
                 needLogin(editEvent, event.id);
             } else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -94,14 +110,14 @@ function eventDetail(event_id) {
     });
 }
 
-function createEvent(auth={},info={}) {
+function createEvent(auth = {}, info = {}) {
     Swal.fire({
         title: "新增事件",
         html: `
             <label> title</label><input id="title" class="swal2-input" placeholder="標題"><br>
             <label> content</label><textarea id="content" class="swal2-textarea" placeholder="內容"></textarea><br>
-            <label> start</label><input id="start" type="date" class="swal2-input" value="${info.startStr||info.dateStr}"><br>
-            <label> end</label><input id="end" type="date" class="swal2-input" value="${info.endStr||""}"><br>
+            <label> start</label><input id="start" type="date" class="swal2-input" value="${info.startStr || info.dateStr}"><br>
+            <label> end</label><input id="end" type="date" class="swal2-input" value="${info.endStr || ""}"><br>
             <label> 公開事件</label><input type="checkbox" id="is_public">
         `,
         showCancelButton: true,
@@ -121,7 +137,10 @@ function createEvent(auth={},info={}) {
                 }),
                 success: function () {
                     Swal.fire("成功", "事件已新增", "success");
+
+                    console.log("Will call refetchEvents()", calendar);
                     calendar.refetchEvents();
+                    // calendar.refetchEvents();
                 },
                 error: function (xhr) {
                     showError(xhr.responseJSON.error || "新增失敗");
@@ -131,7 +150,9 @@ function createEvent(auth={},info={}) {
     });
 }
 
-function editEvent(event_id) {
+function editEvent(_, event_id) {
+    // console.log(event_id)
+
     $.get(`/events/${event_id}`, function (event) {
         Swal.fire({
             title: "編輯事件",
@@ -145,6 +166,8 @@ function editEvent(event_id) {
             showCancelButton: true,
             confirmButtonText: "更新"
         }).then((result) => {
+            console.log(result)
+
             if (result.isConfirmed) {
                 $.ajax({
                     url: `/events/${event_id}`,
@@ -170,7 +193,7 @@ function editEvent(event_id) {
     });
 }
 
-function deleteEvent(event_id) {
+function deleteEvent(_, event_id) {
     Swal.fire({
         title: "確定要刪除嗎？",
         icon: "warning",

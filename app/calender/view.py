@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import request, jsonify, render_template
 from flask.views import MethodView
 from flask_login import login_required, current_user
@@ -5,7 +6,9 @@ from app import db
 from app.models import Event
 from app.schemas import EventSchema
 from marshmallow import ValidationError
+from sqlalchemy import or_
 from . import calendar_bp
+
 
 # 首頁維持原本函式
 @calendar_bp.route("/")
@@ -19,20 +22,32 @@ class EventAPI(MethodView):
     # 取得事件列表或單一事件
     def get(self, event_id=None):
         if event_id is None:
-            # 取得事件列表
+            events = Event.query
+            
+            start_str = request.args.get("start")
+            end_str = request.args.get("end")
+
+            start = datetime.strptime(start_str[:10], "%Y-%m-%d").date() if start_str else None
+            end = datetime.strptime(end_str[:10], "%Y-%m-%d").date() if end_str else None                      
+            if start:
+                events = events.filter(or_(Event.end == None, Event.end >= start))
+            if end:
+                events = events.filter(Event.start <= end)
+
             if current_user.is_authenticated:
-                events = Event.query.filter(
+                events = events.filter(
                     (Event.user_id == current_user.id) | (Event.is_public == True)
                 ).all()
             else:
-                events = Event.query.filter_by(is_public=True).all()
+                events = events.filter_by(is_public=True).all()
+            
 
             fc_events = [
                 {
                     "id": e.id,
                     "title": e.title,
                     "start": e.start.isoformat(),
-                    "end": e.end.isoformat() if e.end else None
+                    "end": e.end.isoformat() if e.end else None,
                 } for e in events
             ]
             return jsonify(fc_events)
@@ -49,6 +64,10 @@ class EventAPI(MethodView):
     @login_required
     def post(self):
         data = request.get_json()
+        for key, value in data.items():
+            if value == "":
+                data[key] = None
+
         event_schema = EventSchema()
         try:
             event = event_schema.load(data)
@@ -60,6 +79,7 @@ class EventAPI(MethodView):
             return jsonify(err.messages), 400
 
     # 修改事件
+
     @login_required
     def put(self, event_id):
         event = Event.query.get_or_404(event_id)
@@ -70,9 +90,18 @@ class EventAPI(MethodView):
         try:
             for key in ["title", "content", "start", "end", "is_public", "group_id"]:
                 if key in data:
-                    setattr(event, key, data[key])
+                    value = data[key]
 
-            # 日期驗證
+                    # 日期處理
+                    if key in ["start", "end"]:
+                        if value:  # 有值才轉換
+                            value = datetime.strptime(value, "%Y-%m-%d").date()
+                        else:
+                            value = None  # 空字串 → None
+
+                    setattr(event, key, value)
+
+            # 驗證
             event_schema = EventSchema()
             event_schema.validate_dates({
                 "start": event.start,
@@ -81,8 +110,14 @@ class EventAPI(MethodView):
 
             db.session.commit()
             return jsonify(event_schema.dump(event))
+
         except ValidationError as err:
+            db.session.rollback()
             return jsonify(err.messages), 400
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
 
     # 刪除事件
     @login_required

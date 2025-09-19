@@ -2,9 +2,9 @@ from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login_manager
+from app.BaseModel import BaseModel
 
-
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model, BaseModel):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +32,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class Event(db.Model):
+class Event(db.Model, BaseModel):
     __tablename__ = "events"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +52,7 @@ class Event(db.Model):
         return f"<Event {self.title} ({self.start} - {self.end})>"
     
 
-class Group(db.Model):
+class Group(db.Model, BaseModel):
     __tablename__ = "groups"
 
     id = db.Column(db.Integer, primary_key=True)
