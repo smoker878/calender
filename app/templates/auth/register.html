@@ -1,29 +1,36 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}📝註冊{% endblock %}
-{% block nav_title %}📝註冊{% endblock %}
-
+{% block title %}
+  📝註冊
+{% endblock %}
+{% block nav_title %}
+  📝註冊
+{% endblock %}
 
 {% block content %}
+  <div class="main">
+    <div class="wrapper1">
+      <form method="POST" class="auth">
+        <label>帳號:</label>
+        <input type="text" name="username" value="{{ username|default('') }}" placeholder="帳號" required /><br />
 
-<form method="POST" class="auth">
-    <label>帳號:</label>
-    <input type="text" name="username" value="{{ username|default('') }}" placeholder="帳號" required><br>
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ email|default('') }}" placeholder="email" required /><br />
 
-    <label>Email:</label>
-    <input type="email" name="email" value="{{ email|default('') }}" placeholder="email"required><br>
+        <label>密碼:</label>
+        <input type="password" name="password" placeholder="密碼" required /><br />
+        <label>確認密碼:</label>
+        <input type="password" name="password1" placeholder="確認密碼" required /><br />
 
-    <label>密碼:</label>
-    <input type="password" name="password" placeholder="密碼" required><br>
-    <label>確認密碼:</label>
-    <input type="password" name="password1"  placeholder="確認密碼" required><br>
+        <button type="submit">註冊</button>
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </form>
 
-    <button type="submit">註冊</button>
-    {% for category, message in get_flashed_messages(with_categories=true) %}
-        <div class="flash {{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endblock %}
-</form>
-
-<p>已經有帳號？ <a href="{{ url_for('auth.login') }}">登入</a></p>
-
+      <p>
+        已經有帳號？ <a href="{{ url_for('auth.login') }}">🗝️登入</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

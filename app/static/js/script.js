@@ -1,4 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
+            $('.nav-phone').hide();
+
+        $('.nav_button').click(function () {
+            // console.log("show")
+            $('.nav-phone').slideToggle();
+        });
+
+
     const calendarEl = document.getElementById('calendar')
 
     const calendar = new FullCalendar.Calendar(calendarEl, {

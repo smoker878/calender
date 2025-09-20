@@ -1,28 +1,32 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}🗝️登入{% endblock %}
-{% block nav_title %}🗝️登入{% endblock %}
+{% block title %}
+  🗝️登入
+{% endblock %}
+{% block nav_title %}
+  🗝️登入
+{% endblock %}
 
 {% block content %}
+  <div class="main">
+    <div class="wrapper1">
+      <form method="POST" class="auth">
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ email|default('') }}" required /><br />
 
+        <label>密碼:</label>
+        <input type="password" name="password" required /><br />
 
-<form method="POST" class="auth">
-    <label>Email:</label>
-    <input type="email" name="email" value="{{ email|default('') }}" required><br>
+        <label class="checkbox"><input type="checkbox" name="remember" />記住我</label><br />
 
-    <label>密碼:</label>
-    <input type="password" name="password" required><br>
-
-    <label class="checkbox">
-        <input type="checkbox" name="remember" {% if remember %}checked{% endif %}> 記住我
-    </label><br>
-
-    <button type="submit">登入</button>
-    {% for category, message in get_flashed_messages(with_categories=true) %}
-        <div class="flash {{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endblock %}
-</form>
-
-<p>還沒有帳號？ <a href="{{ url_for('auth.register') }}">註冊</a></p>
-
+        <button type="submit">登入</button>
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </form>
+      <p>
+        還沒有帳號？ <a href="{{ url_for('auth.register') }}">📝註冊</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

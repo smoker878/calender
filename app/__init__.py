@@ -31,7 +31,7 @@ def create_app(config_name="development"):
     # 藍圖
     from .auth.view import auth_bp
     app.register_blueprint(auth_bp)
-    from .calender.view  import calendar_bp
+    from .calendar.view  import calendar_bp
     app.register_blueprint(calendar_bp)
 
     return app
