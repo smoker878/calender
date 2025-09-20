@@ -87,7 +87,7 @@ function eventDetail(event_id) {
             title: event.title,
             html: `
                 <p>內容: ${event.content || ""}</p>
-                <p>開始: ${event.start}</p>
+                <p>日期: ${event.start}</p>
                 <p>結束: ${event.end || "無"}</p>
                 <p>公開: ${event.is_public ? "是" : "否"}</p>
                 <p>群組: ${event.group_id || "無"}</p>
@@ -114,11 +114,11 @@ function createEvent(auth = {}, info = {}) {
     Swal.fire({
         title: "新增事件",
         html: `
-            <label> title</label><input id="title" class="swal2-input" placeholder="標題"><br>
-            <label> content</label><textarea id="content" class="swal2-textarea" placeholder="內容"></textarea><br>
-            <label> start</label><input id="start" type="date" class="swal2-input" value="${info.startStr || info.dateStr}"><br>
-            <label> end</label><input id="end" type="date" class="swal2-input" value="${info.endStr || ""}"><br>
-            <label> 公開事件</label><input type="checkbox" id="is_public">
+            <label> 標題</label><input id="title" class="swal2-input" placeholder="標題"><br>
+            <label> 內容</label><textarea id="content" class="swal2-textarea" placeholder="內容"></textarea><br>
+            <label> 日期</label><input id="start" type="date" class="swal2-input" value="${info.startStr || info.dateStr}"><br>
+            <label> 結束(多日)</label><input id="end" type="date" class="swal2-input" value="${info.endStr || ""}"><br>
+            <label> <input type="checkbox" id="is_public">公開事件</label>
         `,
         showCancelButton: true,
         confirmButtonText: "送出"
@@ -157,10 +157,10 @@ function editEvent(_, event_id) {
         Swal.fire({
             title: "編輯事件",
             html: `
-                <input id="title" class="swal2-input" value="${event.title}">
-                <textarea id="content" class="swal2-textarea">${event.content || ""}</textarea>
-                <input id="start" type="date" class="swal2-input" value="${event.start}">
-                <input id="end" type="date" class="swal2-input" value="${event.end || ""}">
+                <label> 標題</label><input id="title" class="swal2-input" value="${event.title}"><br>
+                <label> 內容</label><textarea id="content" class="swal2-textarea">${event.content || ""}</textarea><br>
+                <label> 日期</label><input id="start" type="date" class="swal2-input" value="${event.start}"><br>
+                <label> 結束</label><input id="end" type="date" class="swal2-input" value="${event.end || ""}"><br>
                 <label><input type="checkbox" id="is_public" ${event.is_public ? "checked" : ""}> 公開事件</label>
             `,
             showCancelButton: true,

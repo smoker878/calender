@@ -1,3 +1,4 @@
+@charset "UTF-8";
 nav {
   width: 100%;
   display: flex;
@@ -57,9 +58,122 @@ nav a:hover {
 @media (max-width: 750px) {
   .fc-toolbar-ltr {
     display: flex;
+    flex-direction: row-reverse;
     justify-content: center;
     align-items: end;
     gap: 10px;
     flex-wrap: wrap;
   }
+}
+
+form.auth {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+form.auth label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #333;
+}
+form.auth input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+form.auth input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 3px rgba(74, 144, 226, 0.4);
+}
+form.auth button {
+  width: 100%;
+  padding: 10px;
+  background: #4a90e2;
+  border: none;
+  color: white;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+form.auth button:hover {
+  background: #357ab8;
+}
+form.auth p {
+  text-align: center;
+  margin-top: 15px;
+}
+form.auth p a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+form.auth p a:hover {
+  text-decoration: underline;
+}
+form.auth input:invalid {
+  border: rgb(255, 130, 130) 2px solid;
+}
+form.auth input[type=checkbox] {
+  width: auto;
+  /* 不要繼承 100% */
+  display: inline;
+  /* 保持在同一行 */
+}
+form.auth label.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.swal2-html-container {
+  /* 讓 Swal 彈窗寬一點 */
+  /* label 靠右 */
+  /* 文字輸入框和 textarea 拉滿 */
+  /* checkbox 讓它獨立一行 */
+  /* label 粗體 */
+  /* 可加分隔線 */
+}
+.swal2-html-container .swal-wide {
+  width: 600px !important;
+}
+.swal2-html-container label {
+  font-weight: 800;
+  text-align: left !important;
+  width: 100%;
+  display: block;
+}
+.swal2-html-container .swal2-input,
+.swal2-html-container .swal2-textarea {
+  width: 100% !important;
+  margin: 0 0 20px 0 !important;
+}
+.swal2-html-container .checkbox-inline {
+  grid-column: 1/span 2;
+  text-align: left;
+  font-weight: normal;
+}
+.swal2-html-container p {
+  margin: 6px 0;
+  line-height: 1.4;
+  font-size: 20px;
+  text-align: left;
+}
+.swal2-html-container p strong {
+  font-weight: bold;
+  width: 70px;
+  display: inline-block;
+}
+.swal2-html-container p + p {
+  border-top: 1px solid #eee;
+  padding-top: 2px;
 }/*# sourceMappingURL=style.css.map */
