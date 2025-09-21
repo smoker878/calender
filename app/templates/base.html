@@ -1,49 +1,61 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <link href="{{ url_for('static', filename='css/reset.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      {% block title %}
+
+      {% endblock %}
+    </title>
+    <link href="{{ url_for('static', filename='css/reset.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fullcalendar.js') }}"></script>
     <script src="{{ url_for('static', filename='js/sweetalert.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</head>
-<body>
+  </head>
+  <body>
     <nav>
-        <h1>{% block nav_title %}{% endblock %}</h1>
-        <div class="nav-item">
-            <a href="{{ url_for('calendar.index') }}">📅行事曆</a>
-            <a href="">🧑‍🧑‍🧒‍🧒群組</a>
-        </div>
-        <div class="nav-item">
-            {% if current_user.is_authenticated %}
-                <a>👤用戶({{ current_user.username }})</a>
-                <a href="{{ url_for('auth.logout') }}">🚪登出</a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}">🗝️登入</a>
-                <a href="{{ url_for('auth.register') }}">📝註冊</a>
-            {% endif %}
-        </div>
-        <button class="phone nav_button">☰</button>
-        <div class="phone nav-phone">
-            
-             {% if current_user.is_authenticated %}
-                <a>👤用戶({{ current_user.username }})</a>
-                <a href="{{ url_for('auth.logout') }}">🚪登出</a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}">🗝️登入</a>
-                <a href="{{ url_for('auth.register') }}">📝註冊</a>
-            {% endif %}
-            <a href="{{ url_for('calendar.index') }}">📅行事曆</a>
-            <a href="">🧑‍🧑‍🧒‍🧒群組</a>
+      <h1>
+        {% block nav_title %}
 
-        </div>
+        {% endblock %}
+      </h1>
+      <!--  
+        <div class="nav-item">
+            <a href="">🧑‍🧑‍🧒‍🧒群組</a>
+            </div>
+             -->
+      <div class="nav-item">
+        <a href="{{ url_for('calendar.index') }}">📅行事曆</a>
+        {% if current_user.is_authenticated %}
+          <a>👤用戶({{ current_user.username }})</a>
+          <a href="{{ url_for('auth.logout') }}">🚪登出</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">🗝️登入</a>
+          <a href="{{ url_for('auth.register') }}">📝註冊</a>
+        {% endif %}
+      </div>
+      <button class="phone nav_button">☰</button>
+      <div class="phone nav-phone">
+        {% if current_user.is_authenticated %}
+          <a>👤用戶({{ current_user.username }})</a>
+          <a href="{{ url_for('auth.logout') }}">🚪登出</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">🗝️登入</a>
+          <a href="{{ url_for('auth.register') }}">📝註冊</a>
+        {% endif %}
+        <a href="{{ url_for('calendar.index') }}">📅行事曆</a>
+       <!--  <a href="">🧑‍🧑‍🧒‍🧒群組</a> -->
+      </div>
     </nav>
 
     <div>
-        {% block content %}{% endblock %}
+      {% block content %}
+
+      {% endblock %}
     </div>
-</body>
+
+  </body>
 </html>

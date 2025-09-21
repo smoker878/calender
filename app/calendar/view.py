@@ -45,7 +45,7 @@ class EventAPI(MethodView):
             fc_events = [
                 {
                     "id": e.id,
-                    "title": e.title,
+                    "title": f"{e.user.username}:{e.title}",
                     "start": e.start.isoformat(),
                     "end": e.end.isoformat() if e.end else None,
                 } for e in events

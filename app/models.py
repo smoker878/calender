@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login_manager
 from app.BaseModel import BaseModel
+from sqlalchemy.orm import validates
 
 class User(UserMixin, db.Model, BaseModel):
     __tablename__ = "users"
@@ -42,11 +43,15 @@ class Event(db.Model, BaseModel):
     title = db.Column(db.String(128), nullable=False)
     content = db.Column(db.String(350), nullable=True)
     start = db.Column(db.Date, nullable=False)
-    end = db.Column(db.Date, nullable=True)
-    
+    end = db.Column(db.Date, nullable=True)    
     user = db.relationship("User", back_populates="events")
     group = db.relationship("Group", back_populates="events")
 
+    @validates("end")
+    def validate_end(self, key, end_value):
+        if end_value == self.start:
+            return None
+        return end_value
 
     def __repr__(self):
         return f"<Event {self.title} ({self.start} - {self.end})>"

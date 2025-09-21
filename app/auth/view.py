@@ -2,6 +2,8 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from . import auth_bp
 from app.models import User
+from app.schemas import UserSearchSchema
+
 from app import db
 from flask import jsonify
 
@@ -87,7 +89,16 @@ def me():
         })
     else:
         return jsonify({"authenticated": False}), 401
+   
 
+@auth_bp.route("/user")
+@login_required
+def user():
+    username = request.args.get("username", "")
+    users = User.query.filter(User.username.ilike(f"%{username}%")).limit(10).all()    
+    user_schema = UserSearchSchema(many=True)
+    result = user_schema.dump(users)    
+    return jsonify(result)
 
 
 

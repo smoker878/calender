@@ -94,22 +94,25 @@ function eventDetail(event_id) {
         Swal.fire({
             title: event.title,
             html: `
-                <p>內容: ${event.content || ""}</p>
+                <p style="white-space: pre-line;">內容:<br> ${event.content || ""}</p>
                 <p>日期: ${event.start}</p>
                 <p>結束: ${event.end || "無"}</p>
                 <p>公開: ${event.is_public ? "是" : "否"}</p>
-                <p>群組: ${event.group_id || "無"}</p>
+               <!-- <p>群組: ${event.group_id || "無"}</p> -->
                 <p>創建: ${event.username || "無"}</p>
             `,
-            showCancelButton: true,
+            // showCancelButton: true,
+            showDenyButton: true, 
             confirmButtonText: "修改",
-            cancelButtonText: "刪除"
+            // cancelButtonText: "刪除",
+            denyButtonText: "刪除"
         }).then((result) => {
             // console.log(result)
             // console.log(event)
             if (result.isConfirmed) {
                 needLogin(editEvent, event.id);
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // } else if (result.dismiss === Swal.DismissReason.cancel) {
+            } else if (result.isDenied) {
                 needLogin(deleteEvent, event.id);
             }
         });
