@@ -2,12 +2,13 @@
 
 ## 簡介
 
-這是一款簡單易用的行事曆應用：
+這是一款 簡單易用、跨裝置友善的行事曆應用，特色如下：
 
-- 前端使用 FullCalendar 顯示行事曆
-- SweetAlert2 提供互動式彈窗
-- 支援新增、編輯、刪除事件
-- 年曆 / 月曆切換，RWD 支援手機操作
+- 📅 多種檢視模式：採用FullCalendar，支援 年曆與月曆切換。
+- ⚡ 直覺操作：整合SweetAlert2彈窗，能在同一頁面完成事件的新增、編輯、刪除與查看。
+- 📱 RWD響應式設計：在手機、平板與桌機上皆能流暢使用。
+- 🔒 權限管理：事件僅允許建立者編輯與刪除，並支援公開事件，方便分享。
+- 🎯 介面簡潔：操作簡單直覺，快速上手。
 
 ![介面操作](./doc/img/介面操作.jpg)
 
@@ -20,9 +21,9 @@
 | 類型 | 框架與套件 |
 |------|------|
 | 後端框架 | Flask |
-| ORM / 資料庫 | SQLAlchemy |
+| ORM  | SQLAlchemy |
 | 資料驗證 / 序列化 | Marshmallow |
-| 前端 (行事曆展示) | FullCalendar |
+| 前端 (行事曆) | FullCalendar |
 | 前端 (互動 / 提示) | SweetAlert2 |
 
 ## 如何使用
@@ -39,7 +40,7 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 設定環境變數
-cp .env.example .env
+cp env.example .env
 # 編輯 .env，設定 SECRET_KEY 與 DATABASE_URL
 
 # 建立資料庫
