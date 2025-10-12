@@ -45,6 +45,7 @@ class Event(db.Model, BaseModel):
     end = db.Column(db.Date, nullable=True)    
     user = db.relationship("User", back_populates="events")
     group = db.relationship("Group", back_populates="events")
+    images = db.relationship("EventImage", back_populates="event", cascade="all, delete-orphan")
 
     @validates("end")
     def validate_end(self, key, end_value):
@@ -54,6 +55,19 @@ class Event(db.Model, BaseModel):
 
     def __repr__(self):
         return f"<Event {self.title} ({self.start} - {self.end})>"
+    
+class EventImage(db.Model):
+    __tablename__ = "event_images"
+
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=db.func.now())
+
+    event = db.relationship("Event", back_populates="images")
+
+    def __repr__(self):
+        return f"<EventImage {self.filename}>"
     
 
 class Group(db.Model, BaseModel):

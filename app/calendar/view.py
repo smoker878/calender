@@ -8,6 +8,7 @@ from app.schemas import EventSchema
 from marshmallow import ValidationError
 from sqlalchemy import or_
 from . import calendar_bp
+from upload.view import save_file, del_file
 
 
 # 首頁維持原本函式
@@ -67,6 +68,20 @@ class EventAPI(MethodView):
         for key, value in data.items():
             if value == "":
                 data[key] = None
+        
+        filenames = data.get("images", [])
+        saved_files = []
+
+        for filename in filenames:
+            try:
+                path = save_file(filename)
+                saved_files.append(filename)  # 或 path
+            except FileNotFoundError as e:
+                print(e)
+                continue
+
+        data["images"] = saved_files
+
 
         event_schema = EventSchema()
         try:
@@ -79,7 +94,6 @@ class EventAPI(MethodView):
             return jsonify(err.messages), 400
 
     # 修改事件
-
     @login_required
     def put(self, event_id):
         event = Event.query.get_or_404(event_id)
@@ -125,6 +139,8 @@ class EventAPI(MethodView):
         event = Event.query.get_or_404(event_id)
         if event.user_id != current_user.id:
             return jsonify({"error": "無權限刪除此事件"}), 403
+        for image in event.images:
+            del_file(image.filename)
 
         db.session.delete(event)
         db.session.commit()

@@ -1,7 +1,13 @@
 from app import ma
 from marshmallow import fields, validates_schema, ValidationError
-from .models import User, Event, Group
+from .models import User, Event, Group, EventImage
 
+class EventImageSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = EventImage
+        load_instance = True
+        exclude = ("event_id",)
+ 
 
 class EventSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -10,7 +16,9 @@ class EventSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
     user_id = fields.Int(dump_only=True)
     username = fields.Function(lambda obj: obj.user.username if obj.user else None)
-    end = fields.Date(allow_none=True) 
+    end = fields.Date(allow_none=True)
+    images = fields.Nested(EventImageSchema, many=True)
+
     @validates_schema
     def validate_dates(self, data, **kwargs):
         start = data.get("start")

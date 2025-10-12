@@ -89,8 +89,7 @@ def save_file(filename):
     final_path = os.path.join(upload_root, filename)
 
     if not os.path.exists(cached_path):
-        print(f"[WARN] 暫存檔不存在: {filename}")
-        return None
+        raise FileNotFoundError(f"[WARN] 暫存檔不存在: {filename}")
 
     try:
         shutil.move(cached_path, final_path)
@@ -98,8 +97,9 @@ def save_file(filename):
         print(f"[INFO] 已移動到正式目錄: {final_path}")
         return final_path
     except Exception as e:
-        print(f"[ERROR] 移動失敗: {e}")
-        return None
+        raise RuntimeError(f"[ERROR] 移動失敗: {e}")
+
+
 
 def del_file(filename):
     """刪除正式資料夾裡的檔案"""
@@ -107,8 +107,14 @@ def del_file(filename):
     filepath = os.path.join(upload_root, filename)
     try:
         os.remove(filepath)
+        print(f"[INFO] 已刪除檔案: {filepath}")
+    except FileNotFoundError:
+        print(f"[WARN] 檔案不存在: {filepath}")
     except Exception as e:
-        print(f"[WARN] 刪除暫存檔失敗: {filepath}, {e}")
+        print(f"[ERROR] 刪除檔案失敗: {filepath}, {e}")
+
+
+
 
 
 

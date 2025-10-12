@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -26,6 +26,17 @@ def create_app(config_name="development"):
     # ✅ 從環境變數取得上傳資料夾
     app.config["UPLOAD_FOLDER"] = os.getenv("UPLOAD_FOLDER", "./uploads")
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        # 將 UPLOAD_FOLDER 轉成絕對路徑
+        upload_dir = os.path.abspath(app.config["UPLOAD_FOLDER"])
+        # 打印 debug
+        full_path = os.path.join(upload_dir, filename)
+        print("🧩 Looking for:", full_path)
+        # 使用 send_from_directory 提供檔案
+        return send_from_directory(upload_dir, filename)
+
 
     # 初始化擴展
     db.init_app(app)
