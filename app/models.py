@@ -1,9 +1,9 @@
-from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import login_manager
-from app.BaseModel import BaseModel
 from sqlalchemy.orm import validates
+from app.BaseModel import BaseModel
+from app import login_manager
+from app import db
 
 class User(UserMixin, db.Model, BaseModel):
     __tablename__ = "users"
@@ -14,7 +14,6 @@ class User(UserMixin, db.Model, BaseModel):
     password_hash = db.Column(db.String(128), nullable=False)
     events = db.relationship("Event", back_populates="user", cascade="all, delete-orphan")
     groups = db.relationship("Group",secondary="user_groups",back_populates="users")
-    
 
     def set_password(self, password):
         """將密碼加密存入資料庫"""
