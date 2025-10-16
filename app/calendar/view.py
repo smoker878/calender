@@ -8,7 +8,7 @@ from app.schemas import EventSchema
 from marshmallow import ValidationError
 from sqlalchemy import or_
 from . import calendar_bp
-from upload.view import save_file, del_file
+from app.upload.view import save_file, del_file
 
 
 # 首頁維持原本函式
@@ -101,21 +101,52 @@ class EventAPI(MethodView):
             return jsonify({"error": "無權限修改此事件"}), 403
 
         data = request.get_json()
+
+        # 處理日期欄位轉換
+        for key in ["start", "end"]:
+            if key in data:
+                value = data[key]
+                data[key] = datetime.strptime(value, "%Y-%m-%d").date() if value else None
+
         try:
+            # 🔹 更新一般欄位
             for key in ["title", "content", "start", "end", "is_public", "group_id"]:
                 if key in data:
-                    value = data[key]
+                    setattr(event, key, data[key])
 
-                    # 日期處理
-                    if key in ["start", "end"]:
-                        if value:  # 有值才轉換
-                            value = datetime.strptime(value, "%Y-%m-%d").date()
-                        else:
-                            value = None  # 空字串 → None
+            # 🔹 圖片處理邏輯
+            if "images" in data:
+                new_images = data["images"] or []
+                old_images = event.images or []
 
-                    setattr(event, key, value)
+                # 找出要刪除的舊圖（舊的有、但新的沒有）
+                to_delete = set(old_images) - set(new_images)
+                # 找出要新增的圖（新的有、但舊的沒有）
+                to_add = set(new_images) - set(old_images)
 
-            # 驗證
+                # 刪除舊圖
+                for filename in to_delete:
+                    try:
+                        del_file(filename)
+                    except FileNotFoundError as e:
+                        print(e)
+                        continue
+
+                # 搬移新圖（從 cache → 正式）
+                saved_files = []
+                for filename in to_add:
+                    try:
+                        save_file(filename)
+                        saved_files.append(filename)
+                    except FileNotFoundError as e:
+                        print(e)
+                        continue
+
+                # 組合新的 images 陣列
+                final_images = list((set(old_images) - to_delete) | set(saved_files))
+                event.images = final_images
+
+            # 驗證時間區間
             event_schema = EventSchema()
             event_schema.validate_dates({
                 "start": event.start,
@@ -123,7 +154,10 @@ class EventAPI(MethodView):
             })
 
             db.session.commit()
-            return jsonify(event_schema.dump(event))
+            return jsonify({
+                "message": "事件已更新",
+                "event": event_schema.dump(event)
+            }), 200
 
         except ValidationError as err:
             db.session.rollback()
@@ -131,6 +165,45 @@ class EventAPI(MethodView):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
+    # @login_required
+    # def put(self, event_id):
+    #     event = Event.query.get_or_404(event_id)
+    #     if event.user_id != current_user.id:
+    #         return jsonify({"error": "無權限修改此事件"}), 403
+
+    #     data = request.get_json()
+
+    
+    #     try:
+    #         for key in ["title", "content", "start", "end", "is_public", "group_id"]:
+    #             if key in data:
+    #                 value = data[key]
+
+    #                 # 日期處理
+    #                 if key in ["start", "end"]:
+    #                     if value:  # 有值才轉換
+    #                         value = datetime.strptime(value, "%Y-%m-%d").date()
+    #                     else:
+    #                         value = None  # 空字串 → None
+
+    #                 setattr(event, key, value)
+
+    #         # 驗證
+    #         event_schema = EventSchema()
+    #         event_schema.validate_dates({
+    #             "start": event.start,
+    #             "end": event.end
+    #         })
+
+    #         db.session.commit()
+    #         return jsonify(event_schema.dump(event))
+
+    #     except ValidationError as err:
+    #         db.session.rollback()
+    #         return jsonify(err.messages), 400
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         return jsonify({"error": str(e)}), 500
 
 
     # 刪除事件
