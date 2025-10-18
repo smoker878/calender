@@ -19,7 +19,6 @@ def index():
 
 # Event 的 Class-Based View
 class EventAPI(MethodView):
-
     # 取得事件列表或單一事件
     def get(self, event_id=None):
         if event_id is None:
@@ -73,14 +72,17 @@ class EventAPI(MethodView):
         saved_files = []
 
         for filename in filenames:
+            print(filenames)
+            # breakpoint()
             try:
-                path = save_file(filename)
-                saved_files.append(filename)  # 或 path
+                path = save_file(filename["filename"])
+                saved_files.append(filename["filename"])  # 或 path
             except FileNotFoundError as e:
                 print(e)
                 continue
+        # breakpoint()
 
-        data["images"] = saved_files
+        data["images"] = [{"filename" : f }for f in saved_files]
 
 
         event_schema = EventSchema()
@@ -116,13 +118,13 @@ class EventAPI(MethodView):
 
             # 🔹 圖片處理邏輯
             if "images" in data:
-                new_images = data["images"] or []
-                old_images = event.images or []
-
+                new_images = {d["filename"] for d in data["images"]} or set
+                old_images = {img.filename  for img in event.images} or set()
+                breakpoint()
                 # 找出要刪除的舊圖（舊的有、但新的沒有）
-                to_delete = set(old_images) - set(new_images)
+                to_delete = old_images - new_images
                 # 找出要新增的圖（新的有、但舊的沒有）
-                to_add = set(new_images) - set(old_images)
+                to_add = new_images - old_images
 
                 # 刪除舊圖
                 for filename in to_delete:
@@ -141,10 +143,12 @@ class EventAPI(MethodView):
                     except FileNotFoundError as e:
                         print(e)
                         continue
-
+                # breakpoint()
+                
                 # 組合新的 images 陣列
-                final_images = list((set(old_images) - to_delete) | set(saved_files))
-                event.images = final_images
+                final_images = list((old_images - to_delete) | saved_files)
+                event.images = [{"filename" : f }for f in final_images]
+                # breakpoint()
 
             # 驗證時間區間
             event_schema = EventSchema()
@@ -165,45 +169,6 @@ class EventAPI(MethodView):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
-    # @login_required
-    # def put(self, event_id):
-    #     event = Event.query.get_or_404(event_id)
-    #     if event.user_id != current_user.id:
-    #         return jsonify({"error": "無權限修改此事件"}), 403
-
-    #     data = request.get_json()
-
-    
-    #     try:
-    #         for key in ["title", "content", "start", "end", "is_public", "group_id"]:
-    #             if key in data:
-    #                 value = data[key]
-
-    #                 # 日期處理
-    #                 if key in ["start", "end"]:
-    #                     if value:  # 有值才轉換
-    #                         value = datetime.strptime(value, "%Y-%m-%d").date()
-    #                     else:
-    #                         value = None  # 空字串 → None
-
-    #                 setattr(event, key, value)
-
-    #         # 驗證
-    #         event_schema = EventSchema()
-    #         event_schema.validate_dates({
-    #             "start": event.start,
-    #             "end": event.end
-    #         })
-
-    #         db.session.commit()
-    #         return jsonify(event_schema.dump(event))
-
-    #     except ValidationError as err:
-    #         db.session.rollback()
-    #         return jsonify(err.messages), 400
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return jsonify({"error": str(e)}), 500
 
 
     # 刪除事件

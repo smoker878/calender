@@ -31,9 +31,8 @@ def create_app(config_name="development"):
     def uploaded_file(filename):
         # 將 UPLOAD_FOLDER 轉成絕對路徑
         upload_dir = os.path.abspath(app.config["UPLOAD_FOLDER"])
-        # 打印 debug
         full_path = os.path.join(upload_dir, filename)
-        print("🧩 Looking for:", full_path)
+        # print("Looking for:", full_path)
         # 使用 send_from_directory 提供檔案
         return send_from_directory(upload_dir, filename)
 
