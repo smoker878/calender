@@ -3,7 +3,7 @@ from flask import request, jsonify, render_template
 from flask.views import MethodView
 from flask_login import login_required, current_user
 from app import db
-from app.models import Event
+from app.models import Event, EventImage
 from app.schemas import EventSchema
 from marshmallow import ValidationError
 from sqlalchemy import or_
@@ -118,13 +118,13 @@ class EventAPI(MethodView):
 
             # 🔹 圖片處理邏輯
             if "images" in data:
-                new_images = {d["filename"] for d in data["images"]} or set
+                new_images = {d["filename"] for d in data["images"]} or set()
                 old_images = {img.filename  for img in event.images} or set()
-                breakpoint()
                 # 找出要刪除的舊圖（舊的有、但新的沒有）
                 to_delete = old_images - new_images
                 # 找出要新增的圖（新的有、但舊的沒有）
                 to_add = new_images - old_images
+                
 
                 # 刪除舊圖
                 for filename in to_delete:
@@ -135,19 +135,19 @@ class EventAPI(MethodView):
                         continue
 
                 # 搬移新圖（從 cache → 正式）
-                saved_files = []
+                saved_files = set()
                 for filename in to_add:
                     try:
                         save_file(filename)
-                        saved_files.append(filename)
+                        saved_files.add(filename)
                     except FileNotFoundError as e:
                         print(e)
                         continue
-                # breakpoint()
-                
+              
                 # 組合新的 images 陣列
                 final_images = list((old_images - to_delete) | saved_files)
-                event.images = [{"filename" : f }for f in final_images]
+                # event.images = [{"filename" : f }for f in final_images]
+                event.images = [EventImage(filename=f) for f in final_images]
                 # breakpoint()
 
             # 驗證時間區間

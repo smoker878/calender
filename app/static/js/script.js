@@ -197,8 +197,8 @@ function editEvent(_, event_id) {
                 uploadedImages.push(img.filename);
                 return `
                     <div class="preview-item">
-                        <img src="${img.url}" class="preview-thumb" alt="event image">
-                        <button class="remove-btn" data-filename="${img.filename}">x</button>
+                        <img src="uploads/${img.filename}" class="preview-thumb" alt="event image">
+                        <button class="remove-btn" data-filename="${img.filename}">✖</button>
                     </div>
                 `;
             }).join("");
@@ -303,7 +303,7 @@ function initDropzone(selector, uploadedImages, previewContainerSelector) {
             const preview = $(`
                 <div class="preview-item">
                     <img src="${e.target.result}" class="preview-thumb">
-                    <button class="remove-btn">x</button>
+                    <button class="remove-btn">✖</button>
                 </div>
             `);
             preview.find(".remove-btn").on("click", function () {

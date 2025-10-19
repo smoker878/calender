@@ -294,9 +294,9 @@ form.auth {
 
 .remove-btn {
     position: absolute;
-    top: 4px;
-    right: 6px;
-    background: rgba(0, 0, 0, 0.6);
+    top: 3px;
+    right: 4px;
+    // background: rgba(0, 0, 0, 0.6);
     color: red;
     border: none;
     border-radius: 50%;
@@ -309,4 +309,5 @@ form.auth {
 
 .remove-btn:hover {
     background: #c62828;
+    color: white;
 }

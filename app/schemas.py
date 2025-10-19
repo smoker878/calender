@@ -1,4 +1,4 @@
-from flask import current_app
+# from flask import current_app
 from app import ma
 from marshmallow import fields, validates_schema, ValidationError
 from .models import User, Event, Group, EventImage
@@ -9,14 +9,14 @@ class EventImageSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         exclude = ("event_id",)
 
-    url = fields.Method("get_image_url")
+    # url = fields.Method("get_image_url")
 
-    def get_image_url(self, obj):
-        """依照 filename 動態產生圖片 URL"""
-        if not obj.filename:
-            return None
-        upload_root = current_app.config["UPLOAD_FOLDER"]
-        return f"{upload_root}/{obj.filename}"
+    # def get_image_url(self, obj):
+    #     """依照 filename 動態產生圖片 URL"""
+    #     if not obj.filename:
+    #         return None
+    #     upload_root = current_app.config["UPLOAD_FOLDER"]
+    #     return f"{upload_root}/{obj.filename}"
  
 
 class EventSchema(ma.SQLAlchemyAutoSchema):
